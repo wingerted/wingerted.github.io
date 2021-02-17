@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="airflow-usage"/><meta name="keywords" content="Airflow, Shadow Of Winger" /><link rel="alternate" href="/atom.xml" title="Shadow Of Winger" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="http://wingerted.com/2017/02/26/airflow-usage/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" />
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-92288835-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-92288835-1');
+</script><script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":"","latex":false};
+</script>
+
+    <title>airflow-usage - Shadow Of Winger</title>
+  <meta name="generator" content="Hexo 5.3.0"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">Shadow Of Winger</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">首页
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">归档
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">关于
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">Shadow Of Winger</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            首页
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            归档
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            关于
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">airflow-usage
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2017-02-26
+        </span></div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Airflow-%E7%9A%84%E8%BF%90%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="toc-text">Airflow 的运行流程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#DAG%EF%BC%8CTASK%E5%92%8C%E4%BB%96%E4%BB%AC%E7%9A%84%E5%AE%9E%E4%BE%8B"><span class="toc-text">DAG，TASK和他们的实例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Airflow-%E6%89%A7%E8%A1%8C%E7%BB%84%E4%BB%B6"><span class="toc-text">Airflow 执行组件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Airflow-%E6%89%A7%E8%A1%8C%E5%8F%82%E6%95%B0"><span class="toc-text">Airflow 执行参数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Airflow-%E6%89%A7%E8%A1%8C%E7%8A%B6%E6%80%81"><span class="toc-text">Airflow 执行状态</span></a></li></ol></li></ol>
+    </div>
+  </div><div class="post-content"><h1 id="Airflow-的运行流程"><a href="#Airflow-的运行流程" class="headerlink" title="Airflow 的运行流程"></a>Airflow 的运行流程</h1><p>对于Airflow的使用来说了解整个Airflow的运行流程是非常重要的，否则就会出现很多无法预料的行为，关于这部分，本少爷也是踩了很多的坑。</p>
+<h2 id="DAG，TASK和他们的实例"><a href="#DAG，TASK和他们的实例" class="headerlink" title="DAG，TASK和他们的实例"></a>DAG，TASK和他们的实例</h2><p>首先要明白一个概念，无论是DAG，还是TASK都是一个描述一个抽象的逻辑。<br>真正在某个时间点运行的DAG或TASK才是运行的实例。</p>
+<p>在Airflow中，DAG的实例叫做<strong>Dag Run</strong>， Task的实例叫做<strong>Task Instance</strong></p>
+<h2 id="Airflow-执行组件"><a href="#Airflow-执行组件" class="headerlink" title="Airflow 执行组件"></a>Airflow 执行组件</h2><p>Airflow的调度和执行流程中有两个核心的组件</p>
+<ul>
+<li><p>Scheduler：这个是整个Airflow的调度器，Airflow所有DAG的调度过程是由Scheduler轮询来处理的。触发条件达到后，会丢给Executor执行。</p>
+</li>
+<li><p>Executor：现在的Executor有三种：</p>
+<ol>
+<li><p>SequnceExecutor：提供本地执行，并且串行执行一个DAG中的所有Task，基本上只用在初期的Airflow概念验证阶段</p>
+</li>
+<li><p>LocalExecutor：这个是比较常用的Executor，可以在本地并行执行一个DAG内的所有Task</p>
+</li>
+<li><p>CeleryExecutor：这个是在大型任务调度场景，或者是表较复杂的任务分离场景中需要用到的Executor。顾名思义，在这个Executor下，Airflow使用了Celery这个强大的Python分布式队列框架去分发任务，然后在这样的环境下，需要在执行任务的机器上启用Airflow Worker来处理队列中的请求。</p>
+<p>在一个Airflow中同时只能一个Executor启动，不能给指定的DAG指定Executor</p>
+</li>
+</ol>
+</li>
+<li><p>Pool：这个Pool虽然不是Airflow的核心，但也跟整个Airflow的执行流程相关。任何一个Task其实都是指定了Pool这个参数的，即使没有自己指定，其实也是归结到了Default Pool这么个池子中。Pool本身是个抽象的概念，由Slot组成，可以建立任何一个Pool，指定Slot的数量。任何一个使用了这个Pool的Task Instance就需要占用一个Slot，Slot用完了，Task就处于等待状态。</p>
+</li>
+</ul>
+<h2 id="Airflow-执行参数"><a href="#Airflow-执行参数" class="headerlink" title="Airflow 执行参数"></a>Airflow 执行参数</h2><p>在整个Airflow的执行流程中，有几个参数，控制了整个调度流程的并行度，但是在文档中却没有好好的写明白。</p>
+<ol>
+<li><p>parallelism：这个参数指定了整个Airflow系统，在任何一刻能同时运行的Task Instance的数量，这个数量跟DAG无关，只跟Executor和Task有关。举个例子：如果parallelism=15, 这时你有两个DAG，A和B，如果A需要同时开跑10个Task，B也要同时开跑10个Task，两个DAG同时触发，那么这时候同时在跑的Task数量只能是15，其余的5个会等之前的Task运行完了触发，这时的状态不会显示在web上。而且在这种情况下，触发的顺序是不确定的。</p>
+</li>
+<li><p>dag_concurrency：这个参数指定了同一个Dag Run中能同时运行的Task Instance的个数</p>
+</li>
+<li><p>max_active_runs_per_dag：这个参数指定了同一个Dag能被同时激活的Dag Run的数量</p>
+</li>
+<li><p>non_pooled_task_slot_count：这个参数指定了默认的Pool能同时运行的Task Instance的数量，如果你的Task没有指定Pool选项，那么这个Task就是属于这个默认的Pool的</p>
+</li>
+</ol>
+<h2 id="Airflow-执行状态"><a href="#Airflow-执行状态" class="headerlink" title="Airflow 执行状态"></a>Airflow 执行状态</h2><p>对于Airflow来说，Dag Run和Task Instance都有自己的执行状态，而且这两者的执行状态<strong>不关联</strong>，也就是说有可能某一个Dag Run是Success的，但是这个Dag Run里的Task Instance确是Failed或者无状态的，反之亦然。</p>
+<p>怎么会出现这种情况呢？一般来说，正常的调度行为下，这种情况是不会出现的，但是如果说我们的Dag写错了，Task跑错了呢？</p>
+<ul>
+<li><p>错误的处理方法：直接在Dag Run的菜单中删除这个跑错的Dag Run，然后让调度器重跑，或者Backfill它</p>
+<p>  但这时，实际上这个Dag Run跑过的Task Instance的状态还在数据库中，于是实际上根本就没有运行Task就调度器就自动判断跑完了。</p>
+<p>  直接删除Task Instance也是一样的情况，调度器会认为这个Dag Run是Success的状态所以就不跑它。但这时可以Backfill</p>
+</li>
+<li><p>所以正确的做法是使用Clear</p>
+<p>  当我们Clear一个Task Instance时，这个Task Instance所属的Dag Run的状态会立即被置为Running，这样调度器就会认为这个Dag Run要继续跑。</p>
+<p>  当然，如果我们同时删除了一批Task Instance和它们所属的Dag Run的话，调度器也会正常的重新开始执行，实际上这样的操作方式，在界面上更容易一点。</p>
+</li>
+</ul>
+<p>在清空状态或重跑时，暂停当前Dag的调度是比较靠谱的，否则会出现，清空到一半，当中的某个任务已经开始被调度的情况，所以最好全部清空完毕后，再打开调度器。</p>
+<p>One more thing，还有非常重要的一点，如果当前有Task Instance在运行，这时我们如果删除了这个Task Instance的状态或者Clear它的状态，实际在后台运行着的任务<strong>并不会停止</strong>！所以需要手工Kill这个任务的运行，然后这时Scheduler进程收到了子进程（我们的运行的Task）异常退出的状态，就会把这个Task Instance的任务状态重新写成Failed，然后我们就又要清空一遍，所以<strong>在重跑任务前，一定要先停止调度，然后Kill当前正在运行的任务进程，最后清空任务状态</strong>。</p>
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>原文作者: </span>
+      <a href="http://wingerted.com">Winger</a>
+    </p>
+    <p class="copyright-item">
+      <span>原文链接: </span>
+      <a href="http://wingerted.com/2017/02/26/airflow-usage/">http://wingerted.com/2017/02/26/airflow-usage/</a>
+    </p>
+    <p class="copyright-item">
+      <span>许可协议: </span>一切皆随性，一切皆随意
+    </p>
+  </div>
+      <footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/Airflow/">Airflow</a>
+            </div>
+        
+        <nav class="post-nav"><a class="prev" href="/2018/02/25/NULL/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">NULL</span>
+        <span class="prev-text nav-mobile">上一篇</span>
+      </a>
+    <a class="next" href="/2017/02/20/introduce-to-airflow/">
+        <span class="next-text nav-default">introduce-to-airflow</span>
+        <span class="prev-text nav-mobile">下一篇</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"><div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a href="mailto:wingerted@gmail.com" class="iconfont icon-email" title="email"></a>
+        <a target="_blank" rel="noopener" href="https://twitter.com/wingerted" class="iconfont icon-twitter" title="twitter"></a>
+        <a target="_blank" rel="noopener" href="https://www.facebook.com/wingerted" class="iconfont icon-facebook" title="facebook"></a>
+        <a target="_blank" rel="noopener" href="https://github.com/wingerted" class="iconfont icon-github" title="github"></a>
+        </div><div class="copyright">
+  <span class="power-by">
+    由 <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a> 强力驱动
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    主题 - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2017 - 2021<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">Winger</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript">
+    var disqus_config = function () {
+        this.page.url = 'http://wingerted.com/2017/02/26/airflow-usage/';
+        this.page.identifier = '2017/02/26/airflow-usage/';
+        this.page.title = 'airflow-usage';
+    };
+    (function() {
+    var d = document, s = d.createElement('script');
+
+    s.src = '//wingerted.disqus.com/embed.js';
+
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();  
+  </script><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>
